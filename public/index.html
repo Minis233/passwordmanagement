@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>随机密码生成器</title>
+  <meta name="description" content="一个功能强大、注重隐私的在线安全工具。无需离开浏览器，即可生成高度可定制的强密码、安全的API令牌和标准UUID。">
+
+  <meta property="og:title" content="随机密码生成器">
+  <meta property="og:description" content="一个功能强大、注重隐私的在线安全工具。无需离开浏览器，即可生成高度可定制的强密码、安全的API令牌和标准UUID。所有操作均在您的设备上完成，我们不保存任何信息。">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="安全生成器">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="随机密码生成器">
+  <meta name="twitter:description" content="一个功能强大、注重隐私的在线安全工具。无需离开浏览器，即可生成高度可定制的强密码、安全的API令牌和标准UUID。所有操作均在您的设备上完成，我们不保存任何信息。">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+    :root {
+      --bg-color: #f0f2f5;
+      --card-bg: #ffffff;
+      --primary-color: #007bff;
+      --text-color: #333;
+      --label-color: #555;
+      --border-color: #dee2e6;
+      --input-bg: #f8f9fa;
+      --success-color: #28a745;
+      --error-color: #dc3545;
+      --disabled-bg: #e9ecef;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+    }
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-top: 0;
+      margin-bottom: 2rem;
+      font-weight: 700;
+    }
+    .options-group, .result-group, .other-generators {
+      margin-bottom: 1.5rem;
+    }
+    .option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    label {
+      font-weight: 500;
+      color: var(--label-color);
+      white-space: nowrap;
+      padding-right: 1rem;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    input[type="checkbox"] {
+      width: 1.25em;
+      height: 1.25em;
+      accent-color: var(--primary-color);
+    }
+    .length-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+    }
+    #length-input {
+      width: 60px;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 1rem;
+      text-align: center;
+      font-weight: 700;
+    }
+    #length-input:focus {
+      outline: 2px solid var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    .result-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    #result-output, #token-output, #uuid-output {
+      flex-grow: 1;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--input-bg);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-color);
+      overflow-x: auto;
+      min-width: 0;
+    }
+    .btn {
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+      width: 100%;
+    }
+    .btn-primary:disabled {
+      background-color: var(--disabled-bg);
+      color: #888;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background-color: var(--input-bg);
+      color: var(--primary-color);
+      border: 1px solid var(--border-color);
+    }
+    .btn:active { transform: scale(0.98); }
+    .feedback {
+      text-align: center;
+      font-weight: 500;
+      height: 1.2em;
+      transition: opacity 0.3s;
+      opacity: 0;
+    }
+    .feedback.success { color: var(--success-color); }
+    .feedback.error { color: var(--error-color); }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>随机密码生成器</h1>
+
+    <div class="options-group">
+      <div class="option">
+        <label for="length-input">密码长度 (3-64):</label>
+        <div class="length-container">
+          <input type="number" id="length-input" value="16" min="3" max="64">
+        </div>
+      </div>
+
+      <div class="option">
+        <label>字符选项 (最少选 2 项):</label>
+        <div></div>
+      </div>
+
+      <div class="option">
+        <label for="opt-lower">小写字母 (a-z)</label>
+        <div class="checkbox-container">
+          <input type="checkbox" id="opt-lower" checked>
+        </div>
+      </div>
+
+      <div class="option">
+        <label for="opt-upper">大写字母 (A-Z)</label>
+        <div class="checkbox-container">
+          <input type="checkbox" id="opt-upper" checked>
+        </div>
+      </div>
+
+      <div class="option">
+        <label for="opt-digit">数字 (0-9)</label>
+        <div class="checkbox-container">
+          <input type="checkbox" id="opt-digit" checked>
+        </div>
+      </div>
+
+      <div class="option">
+        <label for="opt-symbol">特殊符号 (!@#...)</label>
+        <div class="checkbox-container">
+          <input type="checkbox" id="opt-symbol">
+        </div>
+      </div>
+    </div>
+
+    <button id="generate-btn" class="btn btn-primary">生成密码</button>
+
+    <div class="result-group" style="margin-top:1rem;">
+      <input type="text" id="result-output" readonly placeholder="点击上方按钮生成密码...">
+      <button id="copy-btn" class="btn btn-secondary">复制</button>
+    </div>
+
+    <div id="feedback-msg" class="feedback"></div>
+
+    <hr>
+
+    <div class="other-generators">
+      <div class="result-group">
+        <input type="text" id="token-output" readonly placeholder="点击按钮生成 Token...">
+        <button id="generate-token-btn" class="btn btn-secondary">生成 Token</button>
+        <button id="copy-token-btn" class="btn btn-secondary">复制</button>
+      </div>
+    </div>
+
+    <div class="other-generators">
+      <div class="result-group">
+        <input type="text" id="uuid-output" readonly placeholder="点击按钮生成 UUID...">
+        <button id="generate-uuid-btn" class="btn btn-secondary">生成 UUID</button>
+        <button id="copy-uuid-btn" class="btn btn-secondary">复制</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const POOLS = {
+        lower:  'abcdefghijklmnopqrstuvwxyz',
+        upper:  'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        digit:  '0123456789',
+        symbol: '!！@#$%^&*()_+-=[]{}|;:,.<>/?'
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const lengthInput  = $('length-input');
+      const checkboxes   = {
+        lower:  $('opt-lower'),
+        upper:  $('opt-upper'),
+        digit:  $('opt-digit'),
+        symbol: $('opt-symbol')
+      };
+      const generateBtn  = $('generate-btn');
+      const resultOut    = $('result-output');
+      const copyBtn      = $('copy-btn');
+      const feedback     = $('feedback-msg');
+      const tokenBtn     = $('generate-token-btn');
+      const tokenOut     = $('token-output');
+      const copyTokenBtn = $('copy-token-btn');
+      const uuidBtn      = $('generate-uuid-btn');
+      const uuidOut      = $('uuid-output');
+      const copyUuidBtn  = $('copy-uuid-btn');
+
+      // Unbiased random integer in [0, max) using rejection sampling.
+      function randInt(max) {
+        if (max <= 0) return 0;
+        const limit = Math.floor(0xFFFFFFFF / max) * max;
+        const buf = new Uint32Array(1);
+        let n;
+        do {
+          crypto.getRandomValues(buf);
+          n = buf[0];
+        } while (n >= limit);
+        return n % max;
+      }
+
+      const pickFrom = (str) => str.charAt(randInt(str.length));
+
+      function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = randInt(i + 1);
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function selectedKeys() {
+        return Object.keys(checkboxes).filter(k => checkboxes[k].checked);
+      }
+
+      function validate() {
+        const len = parseInt(lengthInput.value, 10);
+        const lenOK = Number.isInteger(len) && len >= 3 && len <= 64;
+        lengthInput.style.borderColor = (lengthInput.value && !lenOK)
+          ? 'var(--error-color)'
+          : 'var(--border-color)';
+        const enoughTypes = selectedKeys().length >= 2;
+        generateBtn.disabled = !lenOK || !enoughTypes;
+      }
+
+      function generatePassword() {
+        clearFeedback();
+        const len = parseInt(lengthInput.value, 10);
+        const keys = selectedKeys();
+        if (keys.length < 2 || !(len >= 3 && len <= 64)) return;
+
+        const pool = keys.map(k => POOLS[k]).join('');
+        const chars = keys.map(k => pickFrom(POOLS[k])); // guarantee one of each
+        while (chars.length < len) chars.push(pickFrom(pool));
+        resultOut.value = shuffle(chars).join('');
+      }
+
+      function generateToken() {
+        const bytes = new Uint8Array(32);
+        crypto.getRandomValues(bytes);
+        tokenOut.value = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+        clearFeedback();
+      }
+
+      function generateUuid() {
+        // Prefer the native API; fall back to a manual v4 if unavailable.
+        if (typeof crypto.randomUUID === 'function') {
+          uuidOut.value = crypto.randomUUID();
+        } else {
+          const b = new Uint8Array(16);
+          crypto.getRandomValues(b);
+          b[6] = (b[6] & 0x0f) | 0x40; // version 4
+          b[8] = (b[8] & 0x3f) | 0x80; // variant 10
+          const hex = Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
+          uuidOut.value = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+        }
+        clearFeedback();
+      }
+
+      let feedbackTimer = null;
+      function showFeedback(msg, type) {
+        feedback.textContent = msg;
+        feedback.className = 'feedback ' + (type || 'success');
+        feedback.style.opacity = '1';
+        clearTimeout(feedbackTimer);
+        feedbackTimer = setTimeout(() => { feedback.style.opacity = '0'; }, 2000);
+      }
+      function clearFeedback() {
+        feedback.textContent = '';
+        feedback.style.opacity = '0';
+      }
+
+      async function copy(el, label) {
+        const v = el.value;
+        if (!v) return;
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(v);
+          } else {
+            el.select();
+            document.execCommand('copy');
+          }
+          showFeedback(label + ' 已复制到剪贴板!', 'success');
+        } catch (err) {
+          console.error('Copy failed', err);
+          showFeedback('复制失败!', 'error');
+        }
+      }
+
+      lengthInput.addEventListener('input', validate);
+      Object.values(checkboxes).forEach(cb => cb.addEventListener('change', validate));
+      generateBtn.addEventListener('click', generatePassword);
+      copyBtn.addEventListener('click',     () => copy(resultOut, '密码'));
+      tokenBtn.addEventListener('click',    generateToken);
+      copyTokenBtn.addEventListener('click', () => copy(tokenOut, 'Token'));
+      uuidBtn.addEventListener('click',     generateUuid);
+      copyUuidBtn.addEventListener('click', () => copy(uuidOut, 'UUID'));
+
+      validate();
+    })();
+  </script>
+</body>
+</html>
