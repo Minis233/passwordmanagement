@@ -79,14 +79,14 @@
       background: var(--card);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 1.75rem;
+      padding: 2rem 2rem 1.75rem;
       transition: background-color .25s ease;
     }
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
     }
     h1 {
       color: var(--primary);
@@ -115,8 +115,10 @@
     [data-theme="dark"] .moon, [data-theme="light"] .sun { display: block; }
 
     label { font-weight: 500; color: var(--label); }
-    .row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .75rem; }
-    .row-stack { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: .9rem; margin-bottom: .9rem; }
+    .row-stack { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1.5rem; }
+    .section { margin-bottom: 1.5rem; }
+    .section:last-child { margin-bottom: 0; }
 
     /* length slider */
     .length-row { gap: 1rem; }
@@ -146,7 +148,8 @@
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: .5rem .75rem;
+      gap: .65rem .75rem;
+      margin-bottom: 1.5rem;
     }
     .check {
       display: flex;
@@ -207,8 +210,8 @@
     /* output rows */
     .out-row {
       display: flex;
-      gap: .5rem;
-      margin-top: .75rem;
+      gap: .6rem;
+      margin-top: 1rem;
     }
     .field {
       flex: 1;
@@ -231,8 +234,8 @@
     .strength {
       display: flex;
       align-items: center;
-      gap: .6rem;
-      margin-top: .6rem;
+      gap: .75rem;
+      margin-top: .85rem;
       height: 1.1rem;
       font-size: .8rem;
       color: var(--muted);
@@ -263,7 +266,7 @@
       text-align: center;
       font-weight: 500;
       height: 1.2em;
-      margin-top: .6rem;
+      margin-top: .85rem;
       transition: opacity .25s;
       opacity: 0;
       font-size: .9rem;
@@ -275,15 +278,17 @@
     hr {
       border: none;
       border-top: 1px solid var(--border);
-      margin: 1.75rem 0 1.25rem;
+      margin: 2rem 0 1.5rem;
     }
     .section-title {
       font-size: .82rem;
       letter-spacing: .04em;
       text-transform: uppercase;
       color: var(--muted);
-      margin: 0 0 .5rem;
+      margin: 0 0 .25rem;
     }
+    .token-section { margin-bottom: 1.5rem; }
+    .token-section .section-title { margin-bottom: 0; }
 
     /* size selector pills */
     .pills {
@@ -312,10 +317,11 @@
     }
 
     footer {
-      margin-top: 1.5rem;
+      margin-top: 1.75rem;
       text-align: center;
       font-size: .8rem;
       color: var(--muted);
+      line-height: 1.6;
     }
     footer a {
       color: var(--muted);
@@ -325,9 +331,12 @@
     footer a:hover { color: var(--primary); border-bottom-color: var(--primary); }
 
     @media (max-width: 480px) {
-      .container { padding: 1.25rem; }
+      body { padding: .75rem; }
+      .container { padding: 1.5rem 1.25rem; }
       h1 { font-size: 1.2rem; }
-      .grid { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; gap: .55rem; }
+      .out-row { flex-wrap: wrap; }
+      .out-row .field { flex-basis: 100%; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -359,10 +368,10 @@
     </div>
 
     <!-- char options -->
-    <div class="row" style="margin-bottom:.5rem;">
+    <div class="row" style="margin-bottom:.6rem;">
       <label>字符选项 (最少选 2 项)</label>
     </div>
-    <div class="grid" style="margin-bottom:1rem;">
+    <div class="grid">
       <label class="check"><input type="checkbox" id="opt-lower" checked><span>小写字母 a-z</span></label>
       <label class="check"><input type="checkbox" id="opt-upper" checked><span>大写字母 A-Z</span></label>
       <label class="check"><input type="checkbox" id="opt-digit" checked><span>数字 0-9</span></label>
@@ -375,7 +384,7 @@
       生成密码
     </button>
 
-    <div class="out-row">
+    <div class="out-row" style="margin-top:1rem;">
       <input type="password" id="result-output" class="field" readonly placeholder="点击上方按钮生成密码…" autocomplete="off" spellcheck="false">
       <button id="toggle-visibility" class="btn btn-secondary icon-btn" type="button" aria-label="显示/隐藏密码" title="显示/隐藏" style="width:auto;padding:0 .8rem;">
         <svg id="eye-on" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -394,29 +403,31 @@
     <hr>
 
     <!-- token -->
-    <div class="row" style="margin-bottom:.4rem;">
-      <p class="section-title" style="margin:0;">API Token</p>
-      <div class="pills" role="tablist" aria-label="Token 字节数">
-        <button type="button" data-bytes="16">16 B</button>
-        <button type="button" data-bytes="32" class="active">32 B</button>
-        <button type="button" data-bytes="64">64 B</button>
+    <section class="token-section">
+      <div class="row" style="margin-bottom:.5rem;">
+        <p class="section-title" style="margin:0;">API Token</p>
+        <div class="pills" role="tablist" aria-label="Token 字节数">
+          <button type="button" data-bytes="16">16 B</button>
+          <button type="button" data-bytes="32" class="active">32 B</button>
+          <button type="button" data-bytes="64">64 B</button>
+        </div>
       </div>
-    </div>
-    <div class="out-row">
-      <input type="text" id="token-output" class="field" readonly placeholder="点击按钮生成 Token…" autocomplete="off" spellcheck="false">
-      <button id="generate-token-btn" class="btn btn-secondary">生成</button>
-      <button id="copy-token-btn" class="btn btn-secondary">复制</button>
-    </div>
-
-    <div style="height:1rem;"></div>
+      <div class="out-row" style="margin-top:.6rem;">
+        <input type="text" id="token-output" class="field" readonly placeholder="点击按钮生成 Token…" autocomplete="off" spellcheck="false">
+        <button id="generate-token-btn" class="btn btn-secondary">生成</button>
+        <button id="copy-token-btn" class="btn btn-secondary">复制</button>
+      </div>
+    </section>
 
     <!-- uuid -->
-    <p class="section-title">UUID v4</p>
-    <div class="out-row">
-      <input type="text" id="uuid-output" class="field" readonly placeholder="点击按钮生成 UUID…" autocomplete="off" spellcheck="false">
-      <button id="generate-uuid-btn" class="btn btn-secondary">生成</button>
-      <button id="copy-uuid-btn" class="btn btn-secondary">复制</button>
-    </div>
+    <section>
+      <p class="section-title">UUID v4</p>
+      <div class="out-row" style="margin-top:.6rem;">
+        <input type="text" id="uuid-output" class="field" readonly placeholder="点击按钮生成 UUID…" autocomplete="off" spellcheck="false">
+        <button id="generate-uuid-btn" class="btn btn-secondary">生成</button>
+        <button id="copy-uuid-btn" class="btn btn-secondary">复制</button>
+      </div>
+    </section>
   </main>
 
   <footer>
