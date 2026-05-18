@@ -1,5 +1,10 @@
 name = "passwordmanagement"
 compatibility_date = "2025-09-01"
+workers_dev = true
+
+routes = [
+  { pattern = "pa.095233.xyz", custom_domain = true }
+]
 
 [assets]
 directory = "./public"
