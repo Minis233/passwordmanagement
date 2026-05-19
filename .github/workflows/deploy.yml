@@ -1,13 +1,42 @@
 name: Deploy
 
+# Optional auto-deploy for forks: set CLOUDFLARE_API_TOKEN and
+# CLOUDFLARE_ACCOUNT_ID under Settings → Secrets and variables →
+# Actions, and every push to main will redeploy your Worker.
+# Without those secrets the job is skipped (not failed).
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 jobs:
+  check-secrets:
+    name: Check secrets
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ACCOUNT" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Cloudflare secrets present, will deploy."
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ️ Cloudflare secrets not set; skipping deploy."
+            echo "   Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID"
+            echo "   under Settings → Secrets and variables → Actions"
+            echo "   to enable automatic deploys on push to main."
+          fi
+
   deploy:
     name: Deploy to Cloudflare Workers
+    needs: check-secrets
+    if: needs.check-secrets.outputs.ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
