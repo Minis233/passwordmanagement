@@ -32,6 +32,13 @@ npx wrangler deploy
 
 `wrangler.toml` 里已经配置好自定义域作为 Workers 路由。Cloudflare 会自动在 zone 上创建 DNS 记录并签 SSL 证书。要换成自己的域名，把 `wrangler.toml` 里的 `routes` 改掉即可（zone 必须在同一个 Cloudflare 账号下）。
 
+### 自动部署
+
+仓库已配置 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)：每次 push 到 `main` 或在 Actions 页面手动触发，都会自动跑 `wrangler deploy`。需要在 GitHub 仓库的 **Settings → Secrets and variables → Actions** 里加两个 secret：
+
+- `CLOUDFLARE_API_TOKEN`：在 [Cloudflare → My Profile → API Tokens](https://dash.cloudflare.com/profile/api-tokens) 用 "Edit Cloudflare Workers" 模板生成
+- `CLOUDFLARE_ACCOUNT_ID`：在任意 Cloudflare 控制台页面右侧能看到
+
 ## 目录结构
 
 ```
@@ -79,6 +86,13 @@ npx wrangler deploy
 ```
 
 The `wrangler.toml` file already wires up a custom domain as the Worker's route. Cloudflare creates the DNS record and provisions the SSL certificate automatically. To use your own domain, edit the `routes` entry in `wrangler.toml` (the zone must live in the same Cloudflare account).
+
+### Auto-deploy
+
+The repo ships with [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): every push to `main` (or a manual run from the Actions tab) triggers `wrangler deploy` on a GitHub-hosted runner. Add two secrets under **Settings → Secrets and variables → Actions** in your GitHub repo:
+
+- `CLOUDFLARE_API_TOKEN` — create one with the "Edit Cloudflare Workers" template at [Cloudflare → My Profile → API Tokens](https://dash.cloudflare.com/profile/api-tokens)
+- `CLOUDFLARE_ACCOUNT_ID` — visible on the right side of any Cloudflare dashboard page
 
 ## Project layout
 
